@@ -3,6 +3,7 @@ package com.imback.common;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,8 +11,8 @@ import java.util.Map;
  * 封装的通用返回结果类
  */
 @Data
-public class Result<T> {
-    private Integer code;  //返回编码
+public class Result<T> implements Serializable {
+    private Integer code;  //返回编码 1成功 0失败
     private String msg;
     private T data;
     private Map map = new HashMap<>();  //动态数据

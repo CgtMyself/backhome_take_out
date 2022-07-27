@@ -20,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,6 +49,7 @@ public class SetmealController {
      * @return
      */
     @PostMapping
+    @CacheEvict(value = "setmealCache" , allEntries = false)
     public Result<String> save(@RequestBody SetmealDto setmealDto){
         log.info("setmealDto = {}",setmealDto);
         setmealService.saveWithDish(setmealDto);
@@ -111,6 +114,7 @@ public class SetmealController {
      * @return
      */
     @PutMapping
+    @CacheEvict(value = "setmealCache" , allEntries = false)
     public Result<String> edit(@RequestBody SetmealDto setmealDto){
 
         setmealService.updateWithDish(setmealDto);
@@ -135,12 +139,19 @@ public class SetmealController {
      * @return
      */
     @DeleteMapping
+    @CacheEvict(value = "setmealCache" , allEntries = true) //删除spring cache缓存，删除所有key为setmealCache的套餐数据
     public Result<String> deleteByIds(@RequestParam List<Long> ids){
         setmealService.deleteWithSetmeal(ids);
         return Result.success("删除成功");
     }
 
+    /**
+     * 根据条件查询套餐数据
+     * @param setmeal
+     * @return
+     */
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache",key = "#setmeal.categoryId+'_'+#setmeal.status")
     public Result<List<SetmealDto>> selectSetmealAndDish(Setmeal setmeal){
         log.info("setmeal = {}",setmeal);
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
@@ -167,6 +178,11 @@ public class SetmealController {
         return Result.success(setmealDtoList);
     }
 
+    /**
+     * 手机端套餐详情
+     * @param id
+     * @return
+     */
     @GetMapping("/dish/{id}")
     public Result<List<SetmealDishDto>> setmealDetail(@PathVariable Long id){
         log.info("id = {}",id);
