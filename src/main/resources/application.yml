@@ -65,5 +65,7 @@ mybatis-plus:
       id-type: ASSIGN_ID
 #上传文件的目录配置
 backhome:
-  path: D:\Download\soft\picture\
+  path: /usr/local/image  #linux服务器图片的目录
+#backhome:
+#  path: D:\Download\soft\picture\
 
