@@ -87,6 +87,7 @@
               <div class="tl-connector" :class="getConnectorClass(0)"></div>
             </div>
             <div class="tl-body">
+              <!-- 非在途订单：该节点无需展示文案 -->
               <template v-if="isNonTransit"></template>
               <template v-else-if="getNodeStatus(0) === 'done'">
                 <div class="tl-node-title">已竣工</div>
@@ -116,6 +117,7 @@
               <div class="tl-connector" :class="getConnectorClass(1)"></div>
             </div>
             <div class="tl-body">
+              <!-- 非在途订单：该节点无需展示文案 -->
               <template v-if="isNonTransit"></template>
               <template v-else-if="getNodeStatus(1) === 'done'">
                 <div class="tl-node-title">已完成</div>
@@ -144,6 +146,7 @@
               <div class="tl-connector" :class="getConnectorClass(2)"></div>
             </div>
             <div class="tl-body">
+              <!-- 非在途订单：该节点无需展示文案 -->
               <template v-if="isNonTransit"></template>
               <template v-else-if="getNodeStatus(2) === 'done'">
                 <div class="tl-node-title">已完成</div>
@@ -174,8 +177,8 @@
             <div class="tl-body">
               <div class="tl-node-title">订单已受理</div>
               <div class="tl-node-time">{{ formatTime(orderInfo.start_time) }}</div>
-              <template v-if="isNonTransit">
-                <div class="tl-node-title">{{ orderInfo.status_name || '订单取消' }}</div>
+              <template v-if="isNonTransit && orderInfo.status_name">
+                <div class="tl-node-title">{{ orderInfo.status_name }}</div>
                 <div class="tl-node-time">{{ formatTime(orderInfo.finish_time) }}</div>
               </template>
             </div>
