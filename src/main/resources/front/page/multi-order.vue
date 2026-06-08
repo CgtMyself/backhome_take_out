@@ -63,8 +63,8 @@
           </div>
           <div class="info-row">
             <span class="info-label">订单状态</span>
-            <span class="info-value status" :class="isCompleted ? 'status-done' : 'status-doing'">
-              <span class="status-icon" :class="{ 'is-rotating': !isCompleted }">{{ isCompleted ? '✓' : '↻' }}</span>
+            <span class="info-value status" :class="!isInTransit ? 'status-done' : 'status-doing'">
+              <span class="status-icon" :class="{ 'is-rotating': isInTransit }">{{ !isInTransit ? '✓' : '↻' }}</span>
               {{ orderInfo.status_name || '-' }}
             </span>
           </div>
@@ -87,7 +87,8 @@
               <div class="tl-connector" :class="getConnectorClass(0)"></div>
             </div>
             <div class="tl-body">
-              <template v-if="getNodeStatus(0) === 'done'">
+              <template v-if="isNonTransit"></template>
+              <template v-else-if="getNodeStatus(0) === 'done'">
                 <div class="tl-node-title">已竣工</div>
                 <div class="tl-node-time">{{ formatTime(orderInfo.finish_time) }}</div>
               </template>
@@ -115,7 +116,8 @@
               <div class="tl-connector" :class="getConnectorClass(1)"></div>
             </div>
             <div class="tl-body">
-              <template v-if="getNodeStatus(1) === 'done'">
+              <template v-if="isNonTransit"></template>
+              <template v-else-if="getNodeStatus(1) === 'done'">
                 <div class="tl-node-title">已完成</div>
               </template>
               <template v-else-if="getNodeStatus(1) === 'active'">
@@ -142,7 +144,8 @@
               <div class="tl-connector" :class="getConnectorClass(2)"></div>
             </div>
             <div class="tl-body">
-              <template v-if="getNodeStatus(2) === 'done'">
+              <template v-if="isNonTransit"></template>
+              <template v-else-if="getNodeStatus(2) === 'done'">
                 <div class="tl-node-title">已完成</div>
               </template>
               <template v-else-if="getNodeStatus(2) === 'active'">
@@ -171,6 +174,10 @@
             <div class="tl-body">
               <div class="tl-node-title">订单已受理</div>
               <div class="tl-node-time">{{ formatTime(orderInfo.start_time) }}</div>
+              <template v-if="isNonTransit">
+                <div class="tl-node-title">{{ orderInfo.status_name || '订单取消' }}</div>
+                <div class="tl-node-time">{{ formatTime(orderInfo.finish_time) }}</div>
+              </template>
             </div>
           </div>
 
@@ -209,6 +216,10 @@ export default {
       if (!this.orderInfo) return false
       const status = String(this.orderInfo.status)
       return ['0', '5'].includes(status)
+    },
+    /** 非在途状态 status not in (0,1,5)，如订单取消 */
+    isNonTransit () {
+      return !!this.orderInfo && !this.isCompleted && !this.isInTransit
     },
     /** 当前节点名称 */
     currentNodeName () {
@@ -336,7 +347,8 @@ export default {
         return 'node-pending'
       }
 
-      return index === 3 ? 'node-done' : 'node-none'
+      // 非在途状态（如订单取消）：所有节点图标均显示为已完成
+      return 'node-done'
     },
 
     /**
